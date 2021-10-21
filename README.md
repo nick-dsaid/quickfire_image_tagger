@@ -41,18 +41,27 @@ pip install gooey
 If you're advanced users who like to create a virtual environment, please use the requirements.txt file.
 
 ## Quick Start
-Three ways to use the program:
-- As a GUI-based software
 
-    - Download the installer from here
-    ![](https://i.imgur.com/ASjLjK7.png)
+Clone this repository to your local disk. The Python script and Jupyter
+Notebook are in the "scripts/" folder.
+
+
+There are three ways to use the program:
+- As a GUI-based software. Run the Python [script](https://github.com/nick-dsaid/quickfire_image_tagger/blob/main/scripts/image_tagger.py)
+
+    ```bash
+        python image_tagger.py
+    ```
+
+![](https://i.imgur.com/ASjLjK7.png)
 
 
 - As a Jupyter Notebook
-    - Download the jupyter notebook template from here.
+    - Run Jupyter [Notebook](https://github.com/nick-dsaid/quickfire_image_tagger/blob/main/scripts/image_tagger.ipynb)
 
 
-- As a command line program
+- As a command line program. Run the Python script with *arguments*.
+
     ```bash
     python image_tagger.py "~/secure/gcp.json" "/home/project/inputs" "/home/project/outputs/generated_tags.csv"
     ```

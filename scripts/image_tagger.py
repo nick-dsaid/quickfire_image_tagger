@@ -157,7 +157,7 @@ def run_image_annotation(input_folder:str, recursive:bool, output_filepath:str, 
                         image = vision.Image(content=content)
 
                     response = client.label_detection(image=image)
-                    results = [(os.path.join(root, filename), x.description, x.score) for x in response.label_annotations]
+                    results = [(os.path.abspath(os.path.join(root, filename)), x.description, x.score) for x in response.label_annotations]
                     df.append(pd.DataFrame(results, columns=['filepath', 'label', 'relevance']))
 
                     counter += 1
