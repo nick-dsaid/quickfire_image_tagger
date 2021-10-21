@@ -83,11 +83,11 @@ def _set_arguments_config():
 
     arg_group_outputs.add_argument("-e", "--export-score",
                                    metavar='Export Relevance Score',
-                                   help="Whether to export the relevance score of each label.",
+                                   help="Whether to export the relevance score of each keyword.",
                                    choices=['yes', 'no'], default='yes',
                                    )
-    arg_group_outputs.add_argument("-m", "--maxlabels",
-                                   metavar='Maximum Labels', help="Maximum number of labels to be extracted per image."
+    arg_group_outputs.add_argument("-m", "--maxkeywords",
+                                   metavar='Maximum Keywords', help="Maximum number of keywords to be extracted per image."
                                                                   " Set 0 for unlimited.",
                                    widget="Slider", default=0, type=int,
                                    gooey_options=dict(
@@ -108,10 +108,10 @@ def _set_arguments_config():
     return args
 
 
-def run_image_annotation(input_folder:str, recursive:bool, output_filepath:str, maxlabels:int, export_score:str) -> None:
+def run_image_annotation(input_folder:str, recursive:bool, output_filepath:str, maxkeywords:int, export_score:str) -> None:
     """
-    This function calls Google-Cloud-Vision API to generate the labels for each of the images.
-    It exports the images' filepath and labels in a csv file.
+    This function calls Google-Cloud-Vision API to generate the keywordss for each of the images.
+    It exports the images' filepath and keywordss in a csv file.
 
     Parameters
     ----------
@@ -121,8 +121,8 @@ def run_image_annotation(input_folder:str, recursive:bool, output_filepath:str, 
         If set to True, images in subfolders within the input_folder will also be processed.
     output_filepath : str
         Filepath of the csv file.
-    maxlabels : int
-        Number of maximum to export into the csv file. Labels are sorted by relevancy.
+    maxkeywords : int
+        Number of maximum to export into the csv file. Keywordss are sorted by relevancy.
     export_score : str
         "yes" or "no". Set to "no", will exclude the "relevancy score" in the csv file to be expoerted.
 
@@ -158,7 +158,7 @@ def run_image_annotation(input_folder:str, recursive:bool, output_filepath:str, 
 
                     response = client.label_detection(image=image)
                     results = [(os.path.abspath(os.path.join(root, filename)), x.description, x.score) for x in response.label_annotations]
-                    df.append(pd.DataFrame(results, columns=['filepath', 'label', 'relevance']))
+                    df.append(pd.DataFrame(results, columns=['filepath', 'keyword', 'relevance']))
 
                     counter += 1
                     print("--------------------------")
@@ -170,8 +170,8 @@ def run_image_annotation(input_folder:str, recursive:bool, output_filepath:str, 
     df = pd.concat(df, axis=0, ignore_index=True, sort=False)
     df = df.sort_values(['filepath', 'relevance'], axis=0, ascending=False)
 
-    if maxlabels > 0:
-        df = df.groupby('filepath').head(maxlabels).reset_index()
+    if maxkeywords > 0:
+        df = df.groupby('filepath').head(maxkeywords).reset_index()
     if export_score == "no":
         df = df.drop('relevance', axis=1)
 
@@ -197,7 +197,7 @@ def insert_exif_tags(output_filepath:str, remove_existing_tags:bool) -> None:
     None
     """
     df = pd.read_csv(output_filepath)
-    df = df.groupby('filepath').apply(lambda x: ', '.join(x.label)).reset_index()
+    df = df.groupby('filepath').apply(lambda x: ', '.join(x.keyword)).reset_index()
     df.columns = ['filepath', 'tags_string']
 
     print("--------------------------")
@@ -235,7 +235,7 @@ def main():
     run_image_annotation(args.input_folder,
                          args.recursive,
                          args.output_filepath,
-                         args.maxlabels,
+                         args.maxkeywords,
                          args.export_score)
     if args.tag:
         insert_exif_tags(args.output_filepath, args.remove_existing_tags)
